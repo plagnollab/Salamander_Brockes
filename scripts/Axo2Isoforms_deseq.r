@@ -1,13 +1,48 @@
-library(DESeq)
+library(DESeq2)
+
 library("RColorBrewer")
-library("gplots")
-count_table = read.csv("Genecounts_final_table.txt",header=TRUE,row.names=1)
-cds = newCountDataSet(count_table,c("D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15"))
-rs = rowSums ( counts ( cds))
-use = (rs > quantile(rs, probs=0.4))
-cds = cds[ use, ]
-cds = estimateSizeFactors( cds )
-cds = estimateDispersions( cds )
+library("ggplot2")
+count_table = read.csv("data/Genecounts_final_table.txt.gz",header=TRUE,row.names=1)
+
+time.points <- gsub(pattern = ".*_", replacement = "", names(count_table))
+support <- data.frame(time.point = time.points, stringsAsFactors = TRUE)
+
+
+support$D15.D150 <- factor(ifelse(support$time.point %in% c("D15", "D150"), support$time.point, NA))
+support$D0.D15 <- factor(ifelse(support$time.point %in% c("D0", "D15"), support$time.point, NA))
+
+dds <- DESeqDataSetFromMatrix(countData = count_table,
+                              colData = support,
+                              design = as.formula("~ time.point"))
+
+
+dds <- estimateSizeFactors(dds)
+sizeFactors <- sizeFactors(dds)
+norm_counts <- counts(dds, normalized=TRUE)
+
+################# now run the differential expression analysis
+formula0 <- as.formula("~ 1")
+
+
+good.data <- !is.na(support$D15.D150)
+dds <- DESeqDataSetFromMatrix(countData = count_table[, good.data], colData = support[ good.data,], design = as.formula("~ D15.D150"))
+dds.D15.D150 <- DESeq(dds, test = "LRT", reduced = formula0, minReplicatesForReplace = 7 )
+write.csv(x = results(dds.D15.D150), file = "D15_D150.csv", row.names = FALSE)
+
+good.data <- !is.na(support$D0.D15)
+dds <- DESeqDataSetFromMatrix(countData = count_table[, good.data], colData = support[ good.data,], design = as.formula("~ D0.D15"))
+dds.D0.D15 <- DESeq(dds, test = "LRT", reduced = formula0, minReplicatesForReplace = 7 )
+write.csv(x = results(dds.D0.D15), file = "D0_D15.csv")
+
+
+
+
+
+exit()
+
+
+
+##################### plots happening below
 pdf("Axo2Isoforms_plots.pdf")
 plotDispEsts( cds )
 
@@ -47,12 +82,11 @@ dev.off()
 
 
 
-===============
+##############################
 
-  count_tableDesign = data.frame(  row.names = colnames( count_table ), condition = c("D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15"), libType = c('s_310', 's_310', 's_310', 's_312', 's_312', 's_312', 's_32', 's_32', 's_32', 's_33', 's_33', 's_33', 's_34', 's_34', 's_34'))
-  
-  
-                                 
+count_tableDesign = data.frame(row.names = colnames( count_table ),
+  condition = c("D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15"),
+  libType = c('s_310', 's_310', 's_310', 's_312', 's_312', 's_312', 's_32', 's_32', 's_32', 's_33', 's_33', 's_33', 's_34', 's_34', 's_34'))
                                  
                                  
 #cds1 = newCountDataSet(count_table,colnames(count_table))
@@ -71,11 +105,12 @@ print(plotPCA(vsdFull1))
 range(h[which(h[,14]>quantile(probs=0.9,h[,14])),14])
 
 
-comp1338396_c0,comp16090_c0,comp69666_c0,comp587243_c0,comp31104_c0,comp2147_c0,comp66837_c0
+##comp1338396_c0,comp16090_c0,comp69666_c0,comp587243_c0,comp31104_c0,comp2147_c0,comp66837_c0
 
 
 
-write.csv(norm_counts[which((rownames(norm_counts) %in% c('comp1338396_c0', 'comp16090_c0', 'comp69666_c0', 'comp587243_c0', 'comp31104_c0', 'comp2147_c0', 'comp66837_c0'))),],"Contig_counts.csv")
+write.csv(x = norm_counts[which((rownames(norm_counts) %in% c('comp1338396_c0', 'comp16090_c0', 'comp69666_c0', 'comp587243_c0', 'comp31104_c0', 'comp2147_c0', 'comp66837_c0'))),],
+          file = "Contig_counts.csv")
 
 norm_count_ordered= norm_counts[,order(c("D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15"))]
 
