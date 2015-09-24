@@ -1,0 +1,15 @@
+  library(DESeq2)
+count_table = read.csv("Genecounts_final_table.txt",header=TRUE,row.names=1)
+moop = rbind(names(count_table),c("D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15","D0","D150","D15"),c("1","3","2","1","3","2","1","3","2","1","3","2","1","3","2"))
+coldata = t(moop)
+cd1 = as.data.frame(coldata)
+names(cd1) = c("condition","type")
+cd2 = cd1[,-1]
+dds <- DESeqDataSetFromMatrix( countData = count_table,colData=cd2,~timepoint)
+cd22 = as.data.frame(cd1[,-1])
+dds <- DESeqDataSetFromMatrix( countData = count_table,colData=cd22,~Timepoint)
+ddsTC <- DESeq(dds, test="LRT", reduced = ~ 1)
+resTC <- results(ddsTC)
+write.csv(resTC[order(resTC$padj),],"timeseries_results.csv")
+
+baseMeanPerLvl <- sapply( levels(ddsTC$Timepoint), function(lvl) rowMeans( counts(ddsTC,normalized=TRUE)[,ddsTC$Timepoint == lvl] ) )
