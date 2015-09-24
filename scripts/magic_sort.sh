@@ -1,0 +1,1 @@
+sort -k1,1 -k12,12nr -k11,11n  blast_output.tab | sort -u -k1,1 --merge
