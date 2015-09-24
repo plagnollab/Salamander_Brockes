@@ -1,6 +1,6 @@
 # Salamander Brockes project
 
-Experimental design:
+## Experimental design:
 
 * 15 samples
 * 3 time points (D0, D15, D150)
@@ -14,7 +14,7 @@ Reference species used for annotation of genes:
 * human
 
 
-# Overview of analysis
+## Overview of analysis
 
 Read aligned to reference contigs using RSEM.
 
