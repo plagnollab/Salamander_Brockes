@@ -15,6 +15,10 @@ dds <- DESeqDataSetFromMatrix(countData = count_table,
                               colData = support,
                               design = as.formula("~ time.point"))
 
+good.rows <- apply(counts(dds), MAR = 1, FUN = max) > 20 ### here I require at least one sample to have at least a read count of 20
+
+
+message("Number of genes being considered: ", nrow(dds))
 
 dds <- estimateSizeFactors(dds)
 sizeFactors <- sizeFactors(dds)
@@ -25,20 +29,27 @@ formula0 <- as.formula("~ 1")
 
 
 good.data <- !is.na(support$D15.D150)
-dds <- DESeqDataSetFromMatrix(countData = count_table[, good.data], colData = support[ good.data,], design = as.formula("~ D15.D150"))
-dds.D15.D150 <- DESeq(dds, test = "LRT", reduced = formula0, minReplicatesForReplace = 7 )
-write.csv(x = results(dds.D15.D150), file = "D15_D150.csv", row.names = FALSE)
+dds.D15.D150 <- DESeqDataSetFromMatrix(countData = count_table[good.rows, good.data], colData = support[ good.data,], design = as.formula("~ D15.D150"))
+dds.D15.D150 <- DESeq(dds.D15.D150, test = "LRT", reduced = formula0, minReplicatesForReplace = 7 )
+dds.D15.D150.results <- results(dds.D15.D150)
+dds.D15.D150.results <- dds.D15.D150.results [ order(dds.D15.D150.results$pvalue),]
+dds.D15.D150.results$contig <- row.names(dds.D15.D150.results) 
+write.csv(x = dds.D15.D150.results, file = "D15_D150.csv", row.names = FALSE)
+
 
 good.data <- !is.na(support$D0.D15)
-dds <- DESeqDataSetFromMatrix(countData = count_table[, good.data], colData = support[ good.data,], design = as.formula("~ D0.D15"))
-dds.D0.D15 <- DESeq(dds, test = "LRT", reduced = formula0, minReplicatesForReplace = 7 )
-write.csv(x = results(dds.D0.D15), file = "D0_D15.csv")
+dds.D0.D15 <- DESeqDataSetFromMatrix(countData = count_table[good.rows, good.data], colData = support[ good.data,], design = as.formula("~ D0.D15"))
+dds.D0.D15 <- DESeq(dds.D0.D15, test = "LRT", reduced = formula0, minReplicatesForReplace = 7 )
+dds.D0.D15.results <- results(dds.D0.D15)
+dds.D0.D15.results <- dds.D0.D15.results [ order(dds.D0.D15.results$pvalue),]
+dds.D0.D15.results$contig <- row.names(dds.D0.D15.results)
+write.csv(x = dds.D0.D15.results, file = "D0_D15.csv")
 
 
 
 
 
-exit()
+stop()
 
 
 
