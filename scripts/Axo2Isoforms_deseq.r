@@ -34,7 +34,7 @@ dds.D15.D150 <- DESeq(dds.D15.D150, test = "LRT", reduced = formula0, minReplica
 dds.D15.D150.results <- results(dds.D15.D150)
 dds.D15.D150.results <- dds.D15.D150.results [ order(dds.D15.D150.results$pvalue),]
 dds.D15.D150.results$contig <- row.names(dds.D15.D150.results) 
-write.csv(x = dds.D15.D150.results, file = "D15_D150.csv", row.names = FALSE)
+write.csv(x = dds.D15.D150.results, file = "data/diff_expression/D15_D150.csv", row.names = FALSE)
 
 
 good.data <- !is.na(support$D0.D15)
@@ -43,7 +43,7 @@ dds.D0.D15 <- DESeq(dds.D0.D15, test = "LRT", reduced = formula0, minReplicatesF
 dds.D0.D15.results <- results(dds.D0.D15)
 dds.D0.D15.results <- dds.D0.D15.results [ order(dds.D0.D15.results$pvalue),]
 dds.D0.D15.results$contig <- row.names(dds.D0.D15.results)
-write.csv(x = dds.D0.D15.results, file = "D0_D15.csv")
+write.csv(x = dds.D0.D15.results, file = "data/diff_expression/D0_D15.csv", row.names = FALSE)
 
 
 
