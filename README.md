@@ -33,6 +33,12 @@ Run the deseq2 analysis with the following script:
 R < scripts/deseq2_analysis.R --no-save
 ~~~~
 
+
+Clustering plot is created using:
+~~~~bash
+R < scripts/clustering_graph.R --no-save
+~~~~
+
 Annotate the contig with the pythong script
 ~~~~bash
 python scripts/annotate_data_v2_all_species.py
