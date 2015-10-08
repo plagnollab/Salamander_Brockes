@@ -14,12 +14,15 @@ refseq_annotation = pickle.load(open("data/blast_dict.p"))
 ###### This is the directory containing the RAW csv tables. - an example file is in there called "Contig_normalised_counts.csv" - contig IDs must be the first column
 directory = "data/diff_expression"
 
+###### assign this to the name of the column containing the contig ID - if this name isnt found in the header it defaults to using the first column 
+col_name_contig_id = "contig"
+
 #'''
 blast_master_dict = {}
 
 
 ##### all the blast annotations calculated are stored in this directory
-blst_directory = "blast_output/"
+blst_directory = "blast_output"
 #"""
 for file_ in os.listdir(blst_directory):
 
@@ -99,13 +102,13 @@ for file_ in os.listdir(annotation_directory):
 
 ################# these lines are for debugging, you can directly access the hash table saving time, this is only necessary when testing though.
 
-#pickle.dump(blast_master_dict,open("blast_master_dict","w"))
+pickle.dump(blast_master_dict,open("data/blast_master_dict","w"))
 
-#pickle.dump(annotation_master_dict,open("annotation_master_dict","w"))
+pickle.dump(annotation_master_dict,open("annotation_master_dict","w"))
 #"""
 
-#blast_master_dict = pickle.load(open("blast_master_dict"))
-#annotation_master_dict = pickle.load(open("annotation_master_dict"))
+blast_master_dict = pickle.load(open("data/blast_master_dict"))
+annotation_master_dict = pickle.load(open("annotation_master_dict"))
 #raw_input("asdf")
 
 ################
@@ -123,34 +126,52 @@ for file_ in os.listdir(directory):
     
     if file_.startswith("."):
         continue
-    
+
     if file_.endswith(".csv") and file_.find("annot") == -1:
 
         write_csv = csv.writer(open(os.path.join(directory,file_+"_annotated.csv"),"w"), delimiter=',',quoting=csv.QUOTE_ALL)
         
-        if file_.find("counts") > -1:
-            write_csv.writerow(["Contig ID",'s_310D0_D0', 's_312D0_D0', 's_32D0_D0', 's_33D0_D0', 's_34D0_D0', 's_310D15_D15', 's_312D15_D15', 's_32D15_D15', 's_33D15_D15', 's_34D15_D15', 's_310D150_D150', 's_312D150_D150', 's_32D150_D150', 's_33D150_D150', 's_34D150_D150']+["Description Refseq","gi ID",'RefSeq Protein ID',"Percent match","Evalue",'Associated Gene Name', 'Description', 'Ensembl Protein ID']+['Xenopus Associated Gene Name', 'Xenopus Description', 'Xenopus Ensembl Gene ID', 'Xenopus Percent match', 'Xenopus Evalue']+['Zebrafish Associated Gene Name', 'Zebrafish Description', 'Zebrafish Ensembl Protein ID', 'Zebrafish Percent match', 'Zebrafish Evalue'])
-        else:        
-            write_csv.writerow(["id","Contig name","baseMean","baseMeanA","baseMeanB","foldChange","log2FoldChange","pval","padj","Description Refseq","gi ID",'RefSeq Protein ID',"Percent match","Evalue",'Associated Gene Name', 'Description', 'Ensembl Protein ID']+['Xenopus Associated Gene Name', 'Xenopus Description', 'Xenopus Ensembl Gene ID', 'Xenopus Percent match', 'Xenopus Evalue']+['Zebrafish Associated Gene Name', 'Zebrafish Description', 'Zebrafish Ensembl Protein ID', 'Zebrafish Percent match', 'Zebrafish Evalue'])
-        
-        
+        #if file_.find("counts") > -1:
+        #    write_csv.writerow(["Contig ID",'s_310D0_D0', 's_312D0_D0', 's_32D0_D0', 's_33D0_D0', 's_34D0_D0', 's_310D15_D15', 's_312D15_D15', 's_32D15_D15', 's_33D15_D15', 's_34D15_D15', 's_310D150_D150', 's_312D150_D150', 's_32D150_D150', 's_33D150_D150', 's_34D150_D150']+["Description Refseq","gi ID",'RefSeq Protein ID',"Percent match","Evalue",'Associated Gene Name', 'Description', 'Ensembl Protein ID']+['Xenopus Associated Gene Name', 'Xenopus Description', 'Xenopus Ensembl Gene ID', 'Xenopus Percent match', 'Xenopus Evalue']+['Zebrafish Associated Gene Name', 'Zebrafish Description', 'Zebrafish Ensembl Protein ID', 'Zebrafish Percent match', 'Zebrafish Evalue'])
+        #else:        
+        #write_csv.writerow(["id","Contig name","baseMean","baseMeanA","baseMeanB","foldChange","log2FoldChange","pval","padj","Description Refseq","gi ID",'RefSeq Protein ID',"Percent match","Evalue",'Associated Gene Name', 'Description', 'Ensembl Protein ID']+['Xenopus Associated Gene Name', 'Xenopus Description', 'Xenopus Ensembl Gene ID', 'Xenopus Percent match', 'Xenopus Evalue']+['Zebrafish Associated Gene Name', 'Zebrafish Description', 'Zebrafish Ensembl Protein ID', 'Zebrafish Percent match', 'Zebrafish Evalue'])
         
         read_csv = csv.reader(open(os.path.join(directory,file_),"rU"), delimiter=",") 
         
         print file_
-    
+        
+        
+        
+        contig_index = None
+        
         for row in read_csv:
             
             print row
             
-            #print row[0]
             
-            if row[6] == "":
+            if col_name_contig_id in row:
+                
+                contig_index = row.index(col_name_contig_id)
+                
+                
+                #print "contig found! index of column is :",col_name_contig_id,contig_index
+                #raw_input()
+                
+                
+                write_csv.writerow(row+["Description Refseq","gi ID",'RefSeq Protein ID',"Percent match","Evalue",'Associated Gene Name', 'Description', 'Ensembl Protein ID']+['Xenopus Associated Gene Name', 'Xenopus Description', 'Xenopus Ensembl Gene ID', 'Xenopus Percent match', 'Xenopus Evalue']+['Zebrafish Associated Gene Name', 'Zebrafish Description', 'Zebrafish Ensembl Protein ID', 'Zebrafish Percent match', 'Zebrafish Evalue'])
                 continue
             
-            id_ = row[6]
+            #print row[0]
+        
+            if row[0] == "":
+                continue
             
-            print id_
+            
+            if contig_index == None:
+                id_ = row[0]
+            else:
+                id_ = row[contig_index]
+            #print id_
             
             tmp_annotation = []
             #### iterate through each specie
