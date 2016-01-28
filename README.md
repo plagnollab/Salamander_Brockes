@@ -41,7 +41,7 @@ R < scripts/clustering_graph.R --no-save
 
 Annotate the contig with the pythong script
 ~~~~bash
-python scripts/annotate_data_v2_all_species.py
+python scripts/annotate_data_v3_all_species.py
 ~~~~
 
 Final clean up of the data using

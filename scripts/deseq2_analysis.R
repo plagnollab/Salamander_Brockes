@@ -3,6 +3,9 @@ library(DESeq2)
 library("RColorBrewer")
 library("ggplot2")
 count_table = read.csv("data/Genecounts_final_table.txt.gz",header=TRUE,row.names=1)
+count_table <- aggregate(count_table, FUN = sum, by = list(gsub(row.names(count_table), pattern = "_.*", replacement = "")))
+row.names(count_table) <- count_table$Group.1
+count_table <- count_table[, -1]
 
 time.points <- gsub(pattern = ".*_", replacement = "", names(count_table))
 support <- data.frame(time.point = time.points, stringsAsFactors = TRUE)
