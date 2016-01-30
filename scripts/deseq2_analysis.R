@@ -4,7 +4,7 @@ library("RColorBrewer")
 library("ggplot2")
 count_table = read.csv("data/Genecounts_final_table.txt.gz",header=TRUE,row.names=1)
 count_table <- aggregate(count_table, FUN = sum, by = list(gsub(row.names(count_table), pattern = "_.*", replacement = "")))
-row.names(count_table) <- count_table$Group.1
+row.names(count_table) <- paste0(count_table$Group.1)
 count_table <- count_table[, -1]
 
 time.points <- gsub(pattern = ".*_", replacement = "", names(count_table))
